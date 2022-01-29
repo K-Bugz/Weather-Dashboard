@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./assets/css/style.css" />
+    <title>Weather DashBoard</title>
+</head>
+
+<body>
+    <header class="container-fluid text-center text-white bg-primary p-3">
+        <h1>Weateher DashBoard</h1>
+    </header>
+    <!-- First coloumn on the left -->
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-4">
+                <h2>Search for a city: </h2>
+                <form id="search-form" actions="">
+                    <input type="text" id="search-input" placeholder="Austin, Tx" />
+                    <button type="submit" class="btn btn-primary" id="serch-button">Search</button>
+                    <hr />
+                </form>
+                <p>Search History</p>
+                <div id="search-history" class="border border-primary">Search history will go here</div>
+            </div>
+
+            <!-- Next Column -->
+            <div class="col-8 border border-primary">
+                <section class="border-danger" id="today">Today's Weather</section>
+                <section class="border border-danger" id="forecast" class="row mt-3" role="region" aria-live="polite">
+                    5-Day forcast
+                </section>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
