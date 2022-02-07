@@ -1,13 +1,20 @@
 // Global Variables 
 const apiKey = "fd491a535e375952c287ac394ad9eeea"; // const b/c it never changes (ask tutor why we need this)
-var locations = []; // blank list of locations
+var locations = []; // blank list of location name's
 // HTML element variables 
 var searchInputEl = document.getElementById("search-input"); // grabbing the element
-var searchFormEl = document.getElementById("search-form"); // el 
+var searchFormEl = document.getElementById("search-form"); // el for search form
 var forecastEl = document.getElementById("todaysForcast"); // el for forecast
+var historyEl = document.getElementById("search-history"); // el for history
+
 
 // functions
-function getLocation(event) { // Get latitude and longitude
+function updateHistory() { // append list of locations & set in localStorage for history
+    if (localStorage["cityList"]) { // if we have history then update it. 
+        historyEl.innerHTML += JSON.parse(localStorage["cityList"]);
+    }
+}
+function getLocation(event) { // A function that recieves a name and returns its lat and lon. 
     event.preventDefault();
     let cityName = searchInputEl.value;
     let url = getLocoAPI(cityName);
@@ -17,15 +24,15 @@ function getLocation(event) { // Get latitude and longitude
     }).then(cities => {
         // console.log(cities); // array of top 5 locations
         if (cities.length == 1) {
-            locations.push(cities[0]);
+            locations.push(cities[0].name);
+            localStorage.setItem("cityList", JSON.stringify(locations)); // set local storage w/ new location
         }
         else { // Do modal 
         }
-        // localStorage.setItem("cityList", JSON.stringify(locations));
         weatherAPI(locations[0].lat, locations[0].lon); // passing the lat & lon from getLocation while calling weatherAPI
     })
 }
-// function to concatenate API for location
+// function to concatenate API for location. I kept this method but prefer template literal form. 
 function getLocoAPI(q) { // this calls get location and q is the geoloco from the form.
     // http://api.openweathermap.org/geo/1.0/direct?q={city name},{state code},{country code}&limit={limit}&appid={API key}
     var url = "http://api.openweathermap.org/geo/1.0/direct?";
@@ -33,13 +40,12 @@ function getLocoAPI(q) { // this calls get location and q is the geoloco from th
     return url + "q=" + q + "&limit=" + limit + "&appid=" + apiKey; // concatended string will return.
 
 }
-// A function to get API call for Weather data
+// A function to get API call for Weather data but need lat,lon first. 
 function weatherAPI(lat, lon) { // template literal!!!
     url = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&units=imperial&appid=${apiKey}`;
     fetch(url).then(response => {
         return response.json();
     }).then(data => {
-        // console.log(data);
         // Create city object w/ data that I want/need from API
         data.daily.shift();// Shifts all values 1
         const curCity = {
@@ -81,7 +87,6 @@ function weatherAPI(lat, lon) { // template literal!!!
             day5WindSpeed: data.daily[4].wind_speed,
             day5weatherIcon: data.daily[4].weather[0].icon
         };
-        // locations
 
         // current li retrieved by ID and text updated
         document.getElementById("today").textContent = "Today's Weather for " + curCity.name.charAt(0).toUpperCase() + curCity.name.slice(1);
@@ -122,21 +127,17 @@ function weatherAPI(lat, lon) { // template literal!!!
         document.getElementById("day5Wind").textContent = "Wind Speed: " + curCity.day5WindSpeed;
         document.getElementById("day5Hum").textContent = "Humidity: " + curCity.day5Humidity + "%";
         document.getElementById("weatherIconday5").setAttribute("src", `http://openweathermap.org/img/wn/${curCity.day5weatherIcon}@2x.png`);
-        // append list of locations and set in localStorage for history
 
-        var moo = JSON.parse(localStorage.getItem('cityList'));
-        // console.log(moo); // the whole array of cities
-        // console.log(moo[0]); // just peotone data
-        // console.log(moo[0].name); // just the name "Peotone"
-        for (let i = 0; i < moo.length; i++) {
-            // var listEl = document.createElement("ol"); // Create ordered list element
-            document.getElementById("search-history").textContent = moo[i].name;
-        }
+        updateHistory(); // updates the search history. 
     })
 }
 
 
 
 // Event listerners
+$(document).ready(function () {
+    // localStorage.clear();
+    updateHistory();
+})
 searchFormEl.addEventListener("submit", getLocation); // only passing the function
 // querySelector("#search-input") this is anotherway to do this.
