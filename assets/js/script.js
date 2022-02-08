@@ -6,37 +6,53 @@ var searchInputEl = document.getElementById("search-input"); // grabbing the ele
 var searchFormEl = document.getElementById("search-form"); // el for search form
 var forecastEl = document.getElementById("todaysForcast"); // el for forecast
 var historyEl = document.getElementById("search-history"); // el for history
-
+var city1El = document.getElementById("city1");
+var city2El = document.getElementById("city2");
+var city3El = document.getElementById("city3");
+var city4El = document.getElementById("city4");
 
 // functions
 function updateHistory() { // append list of locations & set in localStorage for history
     if (localStorage["cityList"]) { // if we have history then update it. 
-        historyEl.innerHTML += JSON.parse(localStorage["cityList"]);
-    }
+        locations = JSON.parse(localStorage["cityList"]);
+        // I just want to display a list from local storage. 
+        let ShityNames = [];
+        for (let index = 0; index < locations.length; index++) {
+            ShityNames.push(locations[index].name);
+        }
+        historyEl.innerText = ShityNames.join(", ");
+    };
 }
+
 function getLocation(event) { // A function that recieves a name and returns its lat and lon. 
     event.preventDefault();
     let cityName = searchInputEl.value;
     let url = getLocoAPI(cityName);
     fetch(url).then(response => { // response from API is a string. We use json to make it an object
-        // console.log(response); // called a buffer
         return response.json(); // parse into JSON object
     }).then(cities => {
-        // console.log(cities); // array of top 5 locations
         if (cities.length == 1) {
-            locations.push(cities[0].name);
-            localStorage.setItem("cityList", JSON.stringify(locations)); // set local storage w/ new location
+            weatherAPI(cities[0].lat, cities[0].lon); // passing the lat & lon from getLocation while calling weatherAPI
         }
         else { // Do modal 
+            for (let index = 0; index < cities.length || index < 4; index++) {
+                let newButtonEl = $("<button>");
+                var city = cities[index];
+                newButtonEl.text(`${city.name} , ${city.state}`);
+                newButtonEl.attr("data-lat", city.lat); // look into why selector.data
+                newButtonEl.attr("data-lon", city.lon);
+                newButtonEl.addClass("cityButtons"); // style later
+                $(".modal-body").append(newButtonEl);
+            }
+            $("#myModal").show();
         }
-        weatherAPI(locations[0].lat, locations[0].lon); // passing the lat & lon from getLocation while calling weatherAPI
     })
 }
 // function to concatenate API for location. I kept this method but prefer template literal form. 
 function getLocoAPI(q) { // this calls get location and q is the geoloco from the form.
     // http://api.openweathermap.org/geo/1.0/direct?q={city name},{state code},{country code}&limit={limit}&appid={API key}
     var url = "http://api.openweathermap.org/geo/1.0/direct?";
-    var limit = 5;
+    var limit = 4;
     return url + "q=" + q + "&limit=" + limit + "&appid=" + apiKey; // concatended string will return.
 
 }
@@ -56,6 +72,8 @@ function weatherAPI(lat, lon) { // template literal!!!
             curHumidity: data.current.humidity,
             curUV: data.current.uvi,
             icondata: data.current.weather[0].icon,
+            lat: lat,
+            lon: lon,
             // Day1 data
             day1TempMin: data.daily[0].temp.min,
             day1TempMax: data.daily[0].temp.max,
@@ -87,6 +105,9 @@ function weatherAPI(lat, lon) { // template literal!!!
             day5WindSpeed: data.daily[4].wind_speed,
             day5weatherIcon: data.daily[4].weather[0].icon
         };
+        // Update the locations list and store it. 
+        locations.push(curCity);
+        localStorage.setItem("cityList", JSON.stringify(locations));
 
         // current li retrieved by ID and text updated
         document.getElementById("today").textContent = "Today's Weather for " + curCity.name.charAt(0).toUpperCase() + curCity.name.slice(1);
@@ -132,12 +153,20 @@ function weatherAPI(lat, lon) { // template literal!!!
     })
 }
 
-
-
 // Event listerners
 $(document).ready(function () {
     // localStorage.clear();
     updateHistory();
 })
 searchFormEl.addEventListener("submit", getLocation); // only passing the function
+$(".modal-body").on("click", ".cityButtons", function () {
+    let lat = $(this).data("lat"); // retrieves attribute data and stores it in lat. 
+    let lon = $(this).data("lon");
+    $("#myModal").hide();
+    weatherAPI(lat, lon);
+
+
+});
+
+
 // querySelector("#search-input") this is anotherway to do this.
