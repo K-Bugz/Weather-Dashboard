@@ -5,7 +5,6 @@
 This was a project to demonstrate my ability to use 3rd party API such as a location and weather API. 
 
 ![picture of deployed site](assets/images/rmIMG1.png)
-![picture of deployed site](assets/images/rmIMG2.png)
 
 <!-- Links to your social media accounts -->
 ## Contact Me
