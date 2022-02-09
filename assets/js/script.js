@@ -51,7 +51,7 @@ function getLocation(event) { // A function that recieves a name and returns its
 // function to concatenate API for location. I kept this method but prefer template literal form. 
 function getLocoAPI(q) { // this calls get location and q is the geoloco from the form.
     // http://api.openweathermap.org/geo/1.0/direct?q={city name},{state code},{country code}&limit={limit}&appid={API key}
-    var url = "http://api.openweathermap.org/geo/1.0/direct?";
+    var url = "https://api.openweathermap.org/geo/1.0/direct?";
     var limit = 4;
     return url + "q=" + q + "&limit=" + limit + "&appid=" + apiKey; // concatended string will return.
 
